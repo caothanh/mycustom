@@ -1,4 +1,5 @@
 <?php
+define('PHOTO_DIR', '/var/www/HT/');
 
 /* 
  * To change this license header, choose License Headers in Project Properties.
@@ -80,15 +81,28 @@ function mycustom_box_anh_blogger($link, $title='.post-title', $content='.posts 
   $arr = mycustom_page_ana($link, $title, $content, $img, $attr);
   //mycustom_create_box_anh($arr['body'], $arr['title'], $arr['logo']);
   
-  $dir = '/srv/www/htdocs/Photos/' . $arr['title'];
+  $dir = PHOTO_DIR . $arr['title'];
+  
+  $find = array(
+      'small',
+      't10.',
+      't7.'
+  );
 
+  $rep = array(
+      'big',
+      'i10.',
+      'i7.'
+  );
   mkdir($dir);
+  $dem = 0;
   foreach($arr['body'] as $img) {
+      ++$dem;
     $img = $ex.'/'. $img;
-    $img = str_replace('small', 'big', $img);
+    $img = str_replace($find, $rep, $img);
     $img = preg_replace('/\?.*/', '', $img);
     $img = trim($img, '/');
-    mycustom_save_img($img, $dir);
+    mycustom_save_img($img, $dir, $dem);
   }
   //chmod(file,mode);
 }
@@ -104,7 +118,7 @@ function mycustom_box_anh_pururin($link, $title='.post-title', $content='.posts 
   $arr = mycustom_page_ana($link, $title, $content, 'a', 'href');
   //mycustom_create_box_anh($arr['body'], $arr['title'], $arr['logo']);
   
-  $dir = '/srv/www/htdocs/Photos/' . time();
+  $dir = PHOTO_DIR . time();
 
   mkdir($dir);
   foreach($arr['body'] as $img) {
@@ -120,10 +134,10 @@ function mycustom_box_anh_pururin($link, $title='.post-title', $content='.posts 
 
 
 
-function mycustom_save_img($file, $dir) {
+function mycustom_save_img($file, $dir, $dem = '') {
   //$url = 'http://example.com/image.php';
   //$img = '/my/folder/flower.gif';
-  $dir = $dir .'/' . time() . '.jpg';
+  $dir = $dir .'/' . $dem . '.jpg';
   file_put_contents($dir, file_get_contents($file));
   //mycustom_addtext_img($dir, $dir);
   //chmod($dir,'777');
@@ -334,6 +348,7 @@ function mycustom_boxanh_thiendia($form, $form_state) {
     'gravure_idol_href' => "gravure-idols.com Link",
     'milftoon' => "Milftoon",
     'pornxxx' => 'pornxxxcomics.com',
+    'hentai2read' => 'Hentai2Read',
     'dochentai' => 'Doc hentai',
     'pururin' => 'pururin.com'
   );
@@ -385,6 +400,34 @@ function mycustom_boxanh_pornxxx_update($form, $form_state) {
   mycustom_box_anh_blogger($link,'h2.post-title', '.single-post');
 }
 
+// Get image from hentai2read
+function mycustom_get_hentai2read($link, $num, $title) {
+  $dir = PHOTO_DIR . $title;
+  mkdir($dir);
+  for($i = 1; $i <= $num ; $i++) {
+    if($i < 10) {
+      $dem = '00' . $i;
+    }
+    else 
+        if($i < 100 && $i >=10) {
+            $dem = '0' . $i;
+        }
+        else 
+            if ($i>= 100) {
+                $dem = $i;
+            }
+    $img = $link . '/' . $dem . '.jpg';
+    file_put_contents($dir . $dem .'.jpg', file_get_contents($img));
+  }
+}
+
+// Pull hentai 2 read 
+function mycustom_boxanh_hentai2read_update($form, $form_state) {
+  $link = $form_state['values']['link'];
+  $num = $form_state['values']['offset'];
+  $title = $form_state['values']['to'];
+  mycustom_get_hentai2read($link, $num, $title);
+}
 // Pull from dochentai
 
 function mycustom_boxanh_dochentai_update(&$form, &$form_state) {
