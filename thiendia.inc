@@ -34,16 +34,6 @@ function mycustom_page_ana($link, $title, $content, $img = 'img', $attr ='src', 
   $body = array();
   //$dem == 0;
   foreach($content->find($img) as $img) {
-//    if($dem == 0) {
-//      $logo = $img->{$attr};
-//    }
-//    $src = $ex . $img->{$attr};
-//    if(strpos($src, '.') !== false) {
-//      $body .= "<div class='pic'><a class='colorbox-load' href='$src' rel='test'>" 
-//        . mycustom_imgalt($src, $title) . "</a></div>";
-//    }
-//    
-//    ++$dem;
     if(strpos($img->{$attr}, '.') !== false)
     $body[] = $img->{$attr};
   }
