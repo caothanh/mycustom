@@ -1,0 +1,10 @@
+<?php
+/**
+ * Implement hook schema
+ */
+
+function mycustom_schema() {
+  $schema['cache_mycustom'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+

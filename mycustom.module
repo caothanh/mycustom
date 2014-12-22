@@ -1,0 +1,368 @@
+<?php
+
+require_once(drupal_get_path("module","mycustom")."/simple_html_dom.php");
+require_once(drupal_get_path("module","mycustom")."/hentai.inc");
+require_once(drupal_get_path("module","mycustom")."/thiendia.inc");
+/*
+ * Implement hook_init
+ */
+function mycustom_init() {
+  
+//  $options['masonry_item_selector'] = '.pic';
+//  $options['masonry_column_width'] = 25;
+//  
+//  $options['masonry_column_width_units'] = 'px';
+//  $options['masonry_gutter_width'] = 10;
+//  $options['masonry_resizable'] = 1;
+//  $options['masonry_animated'] = 1;
+//  $options['masonry_animation_duration'] = 10;
+//  $options['masonry_fit_width'] = 1;
+//  $options['masonry_rtl'] = 1;
+//  $options['masonry_images_first'] = 1;
+//  masonry_apply('#pics', $options);
+//  for($i=7239; $i<= 7354 ; $i++) {
+//    db_delete('node')
+//  ->condition('nid', $i)
+//  ->execute();
+//  }
+//  if(drupal_is_front_page()) {
+//    //dsm(cache_get('dochentai', 'cache_mycustom'));
+//    //mycustom_getdochentai_page_run(146);
+//    //dsm($_COOKIE);
+//    //test();
+//    //dsm(taxonomy_term_load(15));
+//    drupal_set_title('Truyện hentai, truyện loạn luân');
+//  }
+//  drupal_add_library('flexslider', 'flexslider') ;
+//  drupal_add_js(drupal_get_path("module", "mycustom") . "/js/jquery.mobilemenu.js");
+//  drupal_add_js(drupal_get_path("module", "mycustom") . "/js/mycustom.js");
+//  drupal_add_css(drupal_get_path("module","mycustom")."/mycustom.css");
+}
+
+/*
+ * Implement hook_menu
+ */
+function mycustom_menu() {
+  // Get content form thiendia.com
+  $items['getlx/%'] = array(
+    'title' => 'Thien Dia',
+    'page callback' => 'mycustom_getlx_links',
+    'page arguments' => array(1),
+    //'access callback' => 'mycustom_access_callback',
+    'type' => MENU_LOCAL_TASK,
+    'access callback' => TRUE
+    
+  );
+  
+  $items['node/%/customcomment'] = array(
+    'title' => 'Comment',
+    'page callback' => 'mycustom_node_comment',
+    'type' => MENU_LOCAL_TASK,
+    'access callback' => TRUE
+  );
+  $items['admin/content/add/box_anh_lx'] = array(
+    'title' => 'Get image from thiendia.com',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mycustom_boxanh_thiendia'),
+    //'access callback' => 'mycustom_access_callback',
+    'type' => MENU_LOCAL_TASK,
+    'access callback' => TRUE
+  );
+  $items['admin/structure/getdochentai'] = array(
+    'title' => "Get Comic",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mycustom_getdochentai_batch_form'),
+    'access callback' => 'mycustom_access_callback',
+    'type' => MENU_NORMAL_ITEM
+  );
+  
+  $items['admin/structure/getdochentai/get'] = array(
+    'title' => "Get Comic",
+    'type' => MENU_DEFAULT_LOCAL_TASK
+  );
+  
+  $items['admin/structure/getdochentai/page'] = array(
+    'title' => "Get single page",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mycustom_getdochentai_single_form'),
+    'access callback' => 'mycustom_access_callback',
+    'type' => MENU_LOCAL_TASK
+  );
+  
+  return $items;
+}
+
+function mycustom_access_callback() {
+  global $user;
+  if($user->uid) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+function mycustom_node_comment() {
+  return theme('item_list', array());
+}
+
+
+
+function mycustom_getlx_links($s) {
+  //echo $_GET['f'];
+  //return 'abcd';
+  if(!isset($_GET['t']) && isset($_GET['f'])) {
+    //echo 'abc ';
+      
+    //dsm($_GET);
+    $f = $_GET['f'];
+    $g = isset($_GET['page']) ? $_GET['page'] : '';
+    if($g=='') {
+      $link = "http://thiendia.com/diendan/forumdisplay.php?f=$f";
+    } else {
+      $link = "http://thiendia.com/diendan/forumdisplay.php?f=$f&order=desc&page=$g";
+    }
+    //return $link;
+    $html = file_get_html($link);
+    //dsm($link);
+    $output = $html->find("#threadslist", 0);
+    
+    $pager = $html->find('.pagenav', 0);
+    //$pager = str_replace("forumdisplay.php?f=$f&order=desc&page=", '', $pager->outertext);
+  
+    //dsm($output);
+    return ($output->outertext . $pager);
+  }
+  else if(isset($_GET['t'])) {
+    $t = $_GET['t'];
+    $link = 'http://thiendia.com/diendan/showthread.php?t='.$t.'&postcount=1';
+    $html = file_get_html($link);
+  
+    $id = "#post_message_".$t;
+    $output = $html->find("#posts", 0)->find('table', 0)->find('.alt1', 0);
+    return "<div id='lxthread'>" . $output->outertext . "</div>";
+  }
+}
+
+/**
+ * Implement hook_node_presave($node)
+ */
+function mycustom_node_presave($node) {
+  if($node->type == 'commic_item') {
+    $cache_comic = cache_get('dochentai', 'cache_mycustom');
+    $cache_data = $cache_comic->data;
+    
+    $bid = $node->book['bid'];
+    
+    if(isset($cache_data[$bid])) {
+      if(!in_array($node->nid, $cache_data[$bid]['chapnids'])) {
+        $cache_data[$bid]['chapnids'][] = $node->nid;
+      }
+    }
+    else {
+      $cache_data[$bid] = array(
+        'type' => 'new',
+        'chapnids' => array($node->nid)
+      );
+    }
+    
+    $book_par = node_load($node->book['bid']);
+    $book_par->changed = time();
+    $book_par->field_last_chap['und'][0]['value'] = mycustom_count_chaper($node->book['bid']);
+    node_save($book_par);
+  }
+  else 
+  if($node->type == 'commic') {
+    //mycustom_modify_entity_solr_search($node);
+  }
+  //else 
+  if($node->type == 'article') {
+    if(!isset($node->nid)) {
+      $fid = $node->field_image['und'][0]['fid'];
+    //dsm($node);
+      $file = file_load($fid);
+      //dsm($file);
+      $filename = $file->filename;
+      $file_url = file_create_url($file->uri);
+      //dsm(drupal_realpath($file->uri));
+      mycustom_addtext_img($file_url, 'sites/default/files/field/image/' . $filename);
+      $node->field_image['und'][0]['alt'] = $node->title . ' Candid ass, sexy photo, nice ass, small boobs, anh sex, anh khoa than, anh lon to, coi truong';
+    }//mycustom_modify_entity_solr_search($node);
+  }
+}
+
+/**
+ * implement hook_form_alter
+ */
+function mycustom_form_alter(&$form, $form_state, $form_id) {
+  //dsm($form_id);
+  if($form_id == 'add_comic_lx_node_form') {
+    $form['title']['#required'] = FALSE;
+    $form['title']['#type'] = 'hidden';
+    //dsm($form);
+    unset($form['revision_information']);
+    unset($form['author']);
+    unset($form['options']);
+    unset($form['book']);
+    unset($form['menu']);
+    unset($form['comment_settings']);
+    unset($form['actions']);
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#submit' => array('mycustom_get_hentai_thiendia'),
+      '#value' => 'Submit',
+      '#weight' => 20
+    );
+  }
+  
+  if($form_id == 'article_node_form') {
+    //dsm($form);
+    //$form['title']['#default_value'] = 'Nice ass ' . time(); 
+    $form['actions']['submit']['#submit'][] = 'mycustom_article_submit';
+//    unset($form['revision_information']);
+//    unset($form['author']);
+//    unset($form['options']);
+//    unset($form['book']);
+//    unset($form['menu']);
+//    unset($form['comment_settings']);
+    //unset($form['actions']);
+  }
+  
+  // Views Search form
+  if($form_id == 'views_exposed_form') {
+    //dsm($form);
+    $form['#attributes'] = array('class' => 'form-search form-horizontal');
+    
+    $form['search_api_views_fulltext']['#attributes'] = array(
+      'class' => array('search-query', 'form-control'),
+      'placeholder' => 'Search'
+    );
+    $form['submit']['#attributes'] = array('class' => array('btn', 'btn-info'));
+    //$form['submit']['#value'] = '<i class="icon glyphicon glyphicon-search" aria-hidden="true"></i>';
+    //$form['submit']['#type'] = 'button';
+  }
+  
+  // Truyen chu
+  if($form_id == 'truy_n_node_form') {
+    //dsm($form);
+    if(arg(1) == 'add') {
+      $form['book']['bid']['#default_value'] = 'new';
+    }
+    
+  }
+}
+
+function mycustom_article_submit($form, $form_state) {
+  drupal_goto('node/add/article');
+}
+
+/*
+ * Implements hook_block_info().
+ */
+
+function mycustom_block_info() {
+  $blocks = array();
+  $blocks['mycustom_get_hentai_thien_dia'] = array(
+    'info' => t('Get hentai form thiendia.com'),
+  );
+
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function mycustom_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'mycustom_get_hentai_thien_dia' :
+      $new_blognode = new stdClass();
+      $new_blognode->type = 'add_comic_lx';
+      module_load_include('inc', 'node', 'node.pages');
+      //module_load_include('inc', 'node', 'node.pages');
+      //$block_content = drupal_get_form('mycustom_gethentai_thiendia');add_comic_lx_node_form
+      $block_content = drupal_get_form('add_comic_lx_node_form', $new_blognode);
+      $block['content'] = $block_content;
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Implement views_pre_build(&$view)
+ */
+function mycustom_search_api_query_alter(SearchApiQueryInterface $query) {
+  //dsm($query);
+  $path = drupal_get_path_alias(current_path());
+  //dsm($path);
+  if(strpos( $path, 'anh-sex') === false && strpos( $path, 'content/') === false) {
+    if(arg(0) == 'node' && arg(1)) {
+      $nid = arg(1);
+      if($nid < 800) {
+        $query->condition('nid', $nid, '>');
+      }
+      else {
+        $query->condition('nid', $nid - 4, '<');
+      }
+    
+    }
+  }
+  
+}
+
+function mycustom_views_pre_render(&$view) {
+  //dsm($view);
+  if ($view->name == 'hentai_mysql' && $view->current_display == 'page_1') {
+    $tid = $view->args[0];
+    $taxo = taxonomy_term_load($tid);
+    $view->build_info['title'] = $taxo->name . ' hentai';
+  }
+}
+
+
+// Add text to image
+function mycustom_addtext_img($url, $filename) {
+      $ext = pathinfo($url, PATHINFO_EXTENSION);
+      
+      
+      
+      
+      echo $ext;
+      if($ext == 'jpg') {
+        $ext = 'jpeg';
+      }
+      $image_func = 'imagecreatefrom'.$ext;
+      $jpg_image = $image_func($url);
+      //$jpg_image = imagecreatefromwebp($url);
+      
+      // Allocate A Color For The Text
+      $white = imagecolorallocate($jpg_image, 0, 0, 0);
+
+      // Set Path to Font File
+      $font_path = drupal_get_path('module', 'mycustom') .'/fonts/JandaCurlygirlPop.ttf';
+
+      // Set Text to Be Printed On Image
+      $text = "i h e n t a i 69.com";
+
+      // Print Text On Image
+      imagettftext($jpg_image, 17, 0, 30, 35, $white, $font_path, $text);
+
+      // Send Image to Browser
+      imagepng($jpg_image, $filename);
+
+      // Clear Memory
+      imagedestroy($jpg_image);
+}
+
+function mycustom_preprocess_page(&$variables){
+      //if(arg(0) == 'node' && arg(2) != 'talk')
+        //$variables['theme_hook_suggestions'][] = 'page__node_';
+  //dsm($variables);
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,59 @@
+body.page-getlx #region-content img,
+#threadslist > tbody:nth-child(1),
+#threadslist > tbody tr td:nth-child(1),
+#threadslist > tbody tr td:nth-child(2),
+#threadslist > tbody tr td:nth-child(6),
+#threadslist > tbody tr td:nth-child(5)
+{
+  display: none;
+} 
+
+body.page-getlx #region-content a {
+  font-weight: bold;
+  font-family:"Times New Roman",Georgia,Serif;
+  font-size: 14px;
+}
+
+.content-row {
+  text-align: center;
+  font-size: 17px;
+  border: 1px solid #ccc;
+  margin: 10px auto;
+  padding-top: 5px;
+}
+
+.content-meta .row {
+  display: none;
+}
+
+.content-meta .row h3 {
+  font-size: 15px;
+}
+body.page-manga #content .content-meta h2 a {
+  font-family:"Times New Roman",Georgia,Serif;
+  font-size: 20px;
+  text-decoration: none;
+}
+
+#block-block-1 {
+  display: none;
+}
+
+
+
+body.page-getlx #lxthread img {
+  display: block;
+  margin: 2px auto;
+  width: 100%;
+}
+body.page-getlx #lxthread img.inlineimg {
+  display: none;
+}
+
+#add-comic-lx-node-form .vertical-tabs.clearfix {
+  display: none;
+}
+
+
+
+
