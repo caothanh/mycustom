@@ -76,13 +76,15 @@ function mycustom_box_anh_blogger($link, $title='.post-title', $content='.posts 
   $find = array(
       'small',
       't10.',
-      't7.'
+      't7.',
+      '/th/'
   );
 
   $rep = array(
       'big',
       'i10.',
-      'i7.'
+      'i7.',
+      '/i/'
   );
   mkdir($dir);
   $dem = 0;
@@ -339,6 +341,8 @@ function mycustom_boxanh_thiendia($form, $form_state) {
     'milftoon' => "Milftoon",
     'pornxxx' => 'pornxxxcomics.com',
     'hentai2read' => 'Hentai2Read',
+    'hotcomics' => 'hotcomics.com',
+    'xxxcomics_pro' => 'xxxcomics.pro',
     'dochentai' => 'Doc hentai',
     'pururin' => 'pururin.com'
   );
@@ -390,10 +394,22 @@ function mycustom_boxanh_pornxxx_update($form, $form_state) {
   mycustom_box_anh_blogger($link,'h2.post-title', '.single-post');
 }
 
+// Get image from hotcomics.com
+function mycustom_boxanh_hotcomics_update($form, $form_state) {
+    $link = $form_state['values']['link'];
+    mycustom_box_anh_blogger($link, 'h1.entry-title', '.entry-content');
+}
+
 // Get image from hentai2read
-function mycustom_get_hentai2read($link, $num, $title) {
+function mycustom_get_hentai2read($link, $num, $title, $ext = 'jpg') {
   $dir = PHOTO_DIR . $title;
+  // Make new directory and permission
+  //mkdir ($dir);
+  //$old_umask = umask(0);
   mkdir($dir);
+  //umask($old_umask);
+  
+  
   for($i = 1; $i <= $num ; $i++) {
     if($i < 10) {
       $dem = '00' . $i;
@@ -406,17 +422,44 @@ function mycustom_get_hentai2read($link, $num, $title) {
             if ($i>= 100) {
                 $dem = $i;
             }
-    $img = $link . '/' . $dem . '.jpg';
-    file_put_contents($dir . $dem .'.jpg', file_get_contents($img));
+    $img = $link . $dem . '.' . $ext;
+    file_put_contents($dir . '/' . $dem . '.jpg', file_get_contents($img));
   }
+}
+
+/**
+ *  Pull from xxxcomics.pro/hentai
+ */
+function mycustom_boxanh_xxxcomics_pro_update(&$form, &$form_state) {
+  $link = $form_state['values']['link'];
+  mycustom_box_anh_blogger($link,'#wrapper .content h1', '#wrapper .content');
 }
 
 // Pull hentai 2 read 
 function mycustom_boxanh_hentai2read_update($form, $form_state) {
   $link = $form_state['values']['link'];
+  
+  $arr = explode('/', $link);
+  // Title of hentai
+  $title = $arr[3];
+  
+  // parse and get first image and num of image
+  $html = file_get_html($link);
+  // get num of images
+  $select_imgs = $html->find(".cbo_wpm_pag", 0);
+  $last_option = $select_imgs->lastChild()->value;
+  
+  //dsm($last_option);
+  
+  // get first image link
+  $img = $html->find('.prw img', 0)->src;
+  $arr_dot = explode('.', $img);
+  $ext = $arr_dot[2];
+  $img = str_replace(array('000.jpg', '001.jpg', '000.png', '001.png'), array('','', '',''), $img);
+  //dsm($ext);
+  
   $num = $form_state['values']['offset'];
-  $title = $form_state['values']['to'];
-  mycustom_get_hentai2read($link, $num, $title);
+  mycustom_get_hentai2read($img, $last_option, $title, $ext);
 }
 // Pull from dochentai
 
