@@ -71,20 +71,24 @@ function mycustom_box_anh_blogger($link, $title='.post-title', $content='.posts 
   $arr = mycustom_page_ana($link, $title, $content, $img, $attr);
   //mycustom_create_box_anh($arr['body'], $arr['title'], $arr['logo']);
   
-  $dir = PHOTO_DIR . $arr['title'];
+  $dir = PHOTO_DIR . $arr['title'] . time();
   
   $find = array(
       'small',
       't10.',
       't7.',
-      '/th/'
+      '/th/',
+      'cu_e450x185',
+      '_t.'
   );
 
   $rep = array(
       'big',
       'i10.',
       'i7.',
-      '/i/'
+      '/i/',
+      'me',
+      '.'
   );
   mkdir($dir);
   $dem = 0;
@@ -94,7 +98,8 @@ function mycustom_box_anh_blogger($link, $title='.post-title', $content='.posts 
     $img = str_replace($find, $rep, $img);
     $img = preg_replace('/\?.*/', '', $img);
     $img = trim($img, '/');
-    mycustom_save_img($img, $dir, $dem);
+    //$dem = $dem . '-' . time();
+    mycustom_save_img($img, $dir, $dem . '-' . time());
   }
   //chmod(file,mode);
 }
@@ -517,7 +522,8 @@ function mycustom_boxanh_gravure_idol_href_update(&$form, &$form_state) {
 // pull image from blog
 function mycustom_boxanh_blogspot_update(&$form, &$form_state) {
   $link = $form_state['values']['link'];
-  mycustom_box_anh_blogger($link);
+  //dsm("some thing here");
+  mycustom_box_anh_blogger($link, '.post-title', '#Blog1');
 }
 function mycustom_boxanh_monhug_update(&$form, &$form_state) {
   $link = $form_state['values']['link'];
