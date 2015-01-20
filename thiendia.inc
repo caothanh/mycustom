@@ -79,7 +79,15 @@ function mycustom_box_anh_blogger($link, $title='.post-title', $content='.posts 
       't7.',
       '/th/',
       'cu_e450x185',
-      '_t.'
+      '_t.',
+      't8.',
+      't1.',
+      't2.',
+      't3.',
+      't4.',
+      't5.',
+      't6.',
+      't9.'
   );
 
   $rep = array(
@@ -88,7 +96,15 @@ function mycustom_box_anh_blogger($link, $title='.post-title', $content='.posts 
       'i7.',
       '/i/',
       'me',
-      '.'
+      '.',
+      'i8.',
+      'i1.',
+      'i2.',
+      'i3.',
+      'i4.',
+      'i5.',
+      'i6.',
+      'i9.'
   );
   mkdir($dir);
   $dem = 0;
@@ -345,7 +361,10 @@ function mycustom_boxanh_thiendia($form, $form_state) {
     'gravure_idol_href' => "gravure-idols.com Link",
     'milftoon' => "Milftoon",
     'pornxxx' => 'pornxxxcomics.com',
+    'svs_comics' => 'svs-comics.com',
+    'fakku' => 'fakku.net',
     'hentai2read' => 'Hentai2Read',
+    'vercomicsporno' => 'vercomicsporno.com',
     'hotcomics' => 'hotcomics.com',
     'xxxcomics_pro' => 'xxxcomics.pro',
     'dochentai' => 'Doc hentai',
@@ -397,6 +416,19 @@ function mycustom_boxanh_update($form, $form_state) {
 function mycustom_boxanh_pornxxx_update($form, $form_state) {
   $link = $form_state['values']['link'];
   mycustom_box_anh_blogger($link,'h2.post-title', '.single-post');
+}
+
+//
+//Get image from fakku.net
+function mycustom_boxanh_fakku_update($form, $form_state) {
+  $link = $form_state['values']['link'];
+  mycustom_box_anh_blogger($link,'a.a-series-title.manga-title', '#wrap .thumbs');
+} 
+
+// Pulling image from svs-comics.com
+function mycustom_boxanh_svs_comics_update($form, $form_state) {
+    $link = $form_state['values']['link'];
+    mycustom_box_anh_blogger($link, '.content-container h1', '.content-container .entry-content');
 }
 
 // Get image from hotcomics.com
@@ -467,10 +499,15 @@ function mycustom_boxanh_hentai2read_update($form, $form_state) {
   mycustom_get_hentai2read($img, $last_option, $title, $ext);
 }
 // Pull from dochentai
-
 function mycustom_boxanh_dochentai_update(&$form, &$form_state) {
   $link = $form_state['values']['link'];
   mycustom_box_anh_blogger($link,'h1.post-title', '.post-entry');
+}
+
+// pull image from vercomicsporno
+function mycustom_boxanh_vercomicsporno_update(&$form, &$form_state) {
+  $link = $form_state['values']['link'];
+  mycustom_box_anh_blogger($link,'h1', '.single-post');
 }
 
 function mycustom_boxanh_pururin_update(&$form, &$form_state) {

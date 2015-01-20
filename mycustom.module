@@ -3,6 +3,7 @@
 require_once(drupal_get_path("module","mycustom")."/simple_html_dom.php");
 require_once(drupal_get_path("module","mycustom")."/hentai.inc");
 require_once(drupal_get_path("module","mycustom")."/thiendia.inc");
+require_once(drupal_get_path("module","mycustom")."/truyendam.php");
 /*
  * Implement hook_init
  */
@@ -211,6 +212,11 @@ function mycustom_form_alter(&$form, $form_state, $form_id) {
       '#value' => 'Submit',
       '#weight' => 20
     );
+  }
+  
+  if($form_id == 'add_truyen_sex_node_form') {
+    //dsm($form);
+      $form['actions']['submit']['#submit'][0] = 'mycustom_truyensex_submit';
   }
   
   if($form_id == 'article_node_form') {
