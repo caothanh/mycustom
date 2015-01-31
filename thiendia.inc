@@ -87,7 +87,10 @@ function mycustom_box_anh_blogger($link, $title='.post-title', $content='.posts 
       't4.',
       't5.',
       't6.',
-      't9.'
+      't9.',
+      'http://cdn-images.9cloud.us/',
+      '.100x100.jpg',
+      
   );
 
   $rep = array(
@@ -104,7 +107,9 @@ function mycustom_box_anh_blogger($link, $title='.post-title', $content='.posts 
       'i4.',
       'i5.',
       'i6.',
-      'i9.'
+      'i9.',
+      'http://images.luscious.net/',
+      '.640x0.jpg'
   );
   mkdir($dir);
   $dem = 0;
@@ -363,8 +368,12 @@ function mycustom_boxanh_thiendia($form, $form_state) {
     'pornxxx' => 'pornxxxcomics.com',
     'svs_comics' => 'svs-comics.com',
     'fakku' => 'fakku.net',
+    'eacomics' => 'eacomics.wordpress.com',
+    'simply_hentai' => 'simply-hentai.com',
     'hentai2read' => 'Hentai2Read',
+    'luscious_net' => 'luscious.net',
     'vercomicsporno' => 'vercomicsporno.com',
+    'pornocomics_net' => 'pornocomics.net',
     'hotcomics' => 'hotcomics.com',
     'xxxcomics_pro' => 'xxxcomics.pro',
     'dochentai' => 'Doc hentai',
@@ -415,15 +424,32 @@ function mycustom_boxanh_update($form, $form_state) {
 
 function mycustom_boxanh_pornxxx_update($form, $form_state) {
   $link = $form_state['values']['link'];
-  mycustom_box_anh_blogger($link,'h2.post-title', '.single-post');
+  mycustom_box_anh_blogger($link,'h1', '#video-code');
 }
 
+//Pull image from simply hentai simply_hentai
+function mycustom_boxanh_luscious_net_update($form, $form_state) {
+  $link = $form_state['values']['link'];
+  mycustom_box_anh_blogger($link,'h1', '#picture_page_1');
+}
+
+//pornocomics_net
+function mycustom_boxanh_pornocomics_net_update($form, $form_state) {
+  $link = $form_state['values']['link'];
+  mycustom_box_anh_blogger($link,'h2.post-title', '.single-post');
+}
 //
 //Get image from fakku.net
 function mycustom_boxanh_fakku_update($form, $form_state) {
   $link = $form_state['values']['link'];
   mycustom_box_anh_blogger($link,'a.a-series-title.manga-title', '#wrap .thumbs');
 } 
+
+// Pulling image from eacomics
+function mycustom_boxanh_eacomics_update($form, $form_state) {
+  $link = $form_state['values']['link'];
+  mycustom_box_anh_blogger($link,'h1', '.entry-content');
+}
 
 // Pulling image from svs-comics.com
 function mycustom_boxanh_svs_comics_update($form, $form_state) {
